@@ -16,3 +16,8 @@ Oooooor only
 ```
 npm install
 ```
+
+Run tests
+```
+npm test
+```

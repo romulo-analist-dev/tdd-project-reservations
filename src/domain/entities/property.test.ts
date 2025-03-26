@@ -42,6 +42,26 @@ describe('Property Entity', () => {
     it('Não deve aplicar desconto para estadias menores que 7 noites', () => {
         const property = new Property('2', 'Apartamento na praia', 'AP Show', 2, 100);
 
-        const dateRange = new DateRange();
+        const dateRange = new DateRange(
+            new Date('2024-12-10'),
+            new Date('2024-12-16')
+        );
+
+        const totalPrice = property.calculateTotalPrice(dateRange);
+
+        expect(totalPrice).toBe(600);
+    });
+
+    it('Deve aplicar desconto para estadias de 7 noites ou mais', () => {
+        const property = new Property('2', 'Apartamento na praia', 'AP Show', 2, 100);
+
+        const dateRange = new DateRange(
+            new Date('2024-12-10'),
+            new Date('2024-12-17')
+        );
+
+        const totalPrice = property.calculateTotalPrice(dateRange);
+
+        expect(totalPrice).toBe(630); // 7 noites * 100 * 0.9 = 630
     });
 });

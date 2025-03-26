@@ -1,3 +1,5 @@
+import { DateRange } from "../value_objects/date_range";
+
 export class Property{
 
     private readonly id: string;
@@ -50,8 +52,22 @@ export class Property{
     }
 
     validateGuestCount(guestCount: number): void {
-        if(guestCount > this.maxGuests){
+
+        if (guestCount > this.maxGuests) {
             throw new Error(`o número máximo de hóspedes excedudo. Máximo permitido: ${this.maxGuests}.`);
         }
+    }
+
+    calculateTotalPrice(dateRange: DateRange): number {
+        
+        const totalNights = dateRange.getTotalNights();
+
+        let totalPrice = totalNights * this.basePricePerNight;
+
+        if (totalNights >= 7) {
+            totalPrice *= 0.9;
+        }
+
+        return totalPrice;
     }
 }
