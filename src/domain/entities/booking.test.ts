@@ -78,4 +78,61 @@ describe('Booking Entity', () => {
         }).toThrow('A propriedade não está disponível para o período solicitado.');
 
     });
+
+    it('Deve cancelar uma reserva sem reembolso quando faltam menos de 1 dia para o check-in', () => {
+        const property = new Property("1", "Casa", "Descrição", 4, 300);
+        const user = new User("1", "João Silva");
+        const dateRange = new DateRange(new Date('2024-12-20'), new Date('2024-12-22'));
+
+        const booking = new Booking("1", property, user, dateRange, 4);
+
+        const currentDate = new Date('2024-12-20');
+        booking.cancel(currentDate);
+
+        expect(booking.getStatus()).toBe('CANCELLED');
+        expect(booking.getTotalPrice()).toBe(600);
+    });
+
+    it('Deve cancelar uma reserva com reembolso total quando a data for superior a 7 dias antes do check-in', () => {
+        const property = new Property("1", "Casa", "Descrição", 4, 300);
+        const user = new User("1", "João Silva");
+        const dateRange = new DateRange(new Date('2024-12-20'), new Date('2024-12-25'));
+
+        const booking = new Booking("1", property, user, dateRange, 4);
+
+        const currentDate = new Date('2024-12-10');
+        booking.cancel(currentDate);
+
+        expect(booking.getStatus()).toBe('CANCELLED');
+        expect(booking.getTotalPrice()).toBe(0);
+    });
+
+    it('Deve cancelar uma reserva com reembolso parcial quando a data estiver entre 1 e 7 dias antes do check-in', () => {
+        const property = new Property("1", "Casa", "Descrição", 4, 300);
+        const user = new User("1", "João Silva");
+        const dateRange = new DateRange(new Date('2024-12-20'), new Date('2024-12-25'));
+
+        const booking = new Booking("1", property, user, dateRange, 4);
+
+        const currentDate = new Date('2024-12-19');
+        booking.cancel(currentDate);
+
+        expect(booking.getStatus()).toBe('CANCELLED');
+        expect(booking.getTotalPrice()).toBe(750);
+    });
+
+    it('Não deve permitir cancelar a mesma reserva mais de uma vez', () => {
+        const property = new Property("1", "Casa", "Descrição", 4, 300);
+        const user = new User("1", "João Silva");
+        const dateRange = new DateRange(new Date('2024-12-20'), new Date('2024-12-25'));
+
+        const booking = new Booking("1", property, user, dateRange, 4);
+
+        const currentDate = new Date('2024-12-19');
+        booking.cancel(currentDate);
+
+        expect(() => {
+            booking.cancel(currentDate);
+        }).toThrow('A reserva já foi cancelada.');
+    });
 });
