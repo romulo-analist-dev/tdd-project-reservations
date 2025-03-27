@@ -21,4 +21,61 @@ describe('Booking Entity', () => {
 
     });
 
+    it('Deve lançar um erro se o número de hóspedes for zero ou negativo', () => {
+        
+        const property = new Property("1", "Casa", "Descrição", 5, 150);
+        const user = new User("1", "João Silva");
+        const dateRange = new DateRange(new Date('2024-12-10'), new Date('2024-12-15'));
+
+        expect(() => {
+            new Booking("1", property, user, dateRange, 0)
+        }).toThrow('o número de hóspedes deve ser maior que zero');
+    });
+
+    it('Deve lançar um erro ao tentar reservar com número de hóspedes acima do máximo permitido', () => {
+        
+        const property = new Property("1", "Casa", "Descrição", 4, 150);
+        const user = new User("1", "João Silva");
+        const dateRange = new DateRange(new Date('2024-12-10'), new Date('2024-12-15'));
+
+        expect(() => {
+            new Booking("1", property, user, dateRange, 5)
+        }).toThrow('O número máximo de hóspedes excedido. Máximo permitido: 4.');
+    });
+
+    it('Deve calcular o preco total com desconto', () => {
+
+        // Arrange
+
+        const property = new Property("1", "Casa", "Descrição", 4, 300);
+        const user = new User("1", "João Silva");
+
+        const dateRange = new DateRange(new Date('2024-12-01'), new Date('2024-12-10'));
+
+        // Act
+        const booking = new Booking("1", property, user, dateRange, 4);
+
+        // Assert
+        expect(booking.getTotalPrice()).toBe(2430); // 300 * 9 * 0.9 = 1350
+
+    });
+
+    it('Não deve realizar o agendamento, quando uma propriedade não estiver disponível', () => {
+
+        // Arrange
+
+        const property = new Property("1", "Casa", "Descrição", 4, 300);
+        const user = new User("1", "João Silva");
+
+        const dateRange = new DateRange(new Date('2024-12-01'), new Date('2024-12-10'));
+
+        const booking = new Booking("1", property, user, dateRange, 4);
+        
+        const dateRange2 = new DateRange(new Date('2024-12-02'), new Date('2024-12-09'));
+        
+        expect(() => {
+            new Booking("2", property, user, dateRange2, 4);
+        }).toThrow('A propriedade não está disponível para o período solicitado.');
+
+    });
 });

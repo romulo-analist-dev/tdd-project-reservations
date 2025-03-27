@@ -1,5 +1,7 @@
 import { Property } from './property';
 import { DateRange } from '../value_objects/date_range';
+import { User } from './user';
+import { Booking } from './booking';
 
 describe('Property Entity', () => {
     
@@ -35,7 +37,7 @@ describe('Property Entity', () => {
 
         expect(() =>{
             property.validateGuestCount(6);
-        }).toThrow('o número máximo de hóspedes excedudo. Máximo permitido: 5.');
+        }).toThrow('O número máximo de hóspedes excedido. Máximo permitido: 5.');
         
     });
 
@@ -63,5 +65,26 @@ describe('Property Entity', () => {
         const totalPrice = property.calculateTotalPrice(dateRange);
 
         expect(totalPrice).toBe(630); // 7 noites * 100 * 0.9 = 630
+    });
+
+    it('Deve verificar disponibilidade da propriedade', () => {
+
+        const property = new Property('2', 'Apartamento na praia', 'AP Show', 4, 100);
+        const user = new User('1', 'Romulo');
+
+        const dateRange = new DateRange(
+            new Date('2024-12-20'),
+            new Date('2024-12-25')
+        );
+
+        const dateRange2 = new DateRange(
+            new Date('2024-12-22'),
+            new Date('2024-12-27')
+        );
+
+        new Booking("1", property, user, dateRange, 2);
+
+        expect(property.isAvailable(dateRange)).toBe(false);
+        expect(property.isAvailable(dateRange2)).toBe(false);
     });
 });

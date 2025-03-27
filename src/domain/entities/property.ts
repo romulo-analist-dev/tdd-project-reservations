@@ -1,4 +1,5 @@
 import { DateRange } from "../value_objects/date_range";
+import { Booking } from "./booking";
 
 export class Property{
 
@@ -7,6 +8,7 @@ export class Property{
     private readonly description: string;
     private readonly maxGuests: number;
     private readonly basePricePerNight: number;
+    private readonly bookings: Booking[] = [];
 
     constructor(
         id: string,
@@ -54,7 +56,7 @@ export class Property{
     validateGuestCount(guestCount: number): void {
 
         if (guestCount > this.maxGuests) {
-            throw new Error(`o número máximo de hóspedes excedudo. Máximo permitido: ${this.maxGuests}.`);
+            throw new Error(`O número máximo de hóspedes excedido. Máximo permitido: ${this.maxGuests}.`);
         }
     }
 
@@ -69,5 +71,19 @@ export class Property{
         }
 
         return totalPrice;
+    }
+
+    isAvailable(dateRange: DateRange): boolean {
+        return !this.bookings.some((booking) => 
+            booking.getStatus() === "CONFIRMED" && booking.getDateRange().overlaps(dateRange)
+        );
+    }
+
+    addBooking(booking: Booking): void {
+        this.bookings.push(booking);
+    }
+
+    getBookings(): Booking[] {
+        return [...this.bookings];
     }
 }
