@@ -1,3 +1,4 @@
+import { RefundRuleFactory } from "../cancelation/refund_rule_factory";
 import { DateRange } from "../value_objects/date_range";
 import { Property } from "./property";
 import { User } from "./user";
@@ -72,19 +73,14 @@ export class Booking {
             throw new Error('A reserva já foi cancelada.');
         }
 
-        this.status = "CANCELLED";
-
         const checkInDate = this.dateRange.getStartDate();
         const timeDiff = checkInDate.getTime() - currentDate.getTime();
         const daysUntilCheckIn = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-        if(daysUntilCheckIn > 7) {
+        const refundRule = RefundRuleFactory.getRefundRule(daysUntilCheckIn);
 
-            this.totalPrice = 0;
+        this.totalPrice = refundRule.calculateRefund(this.totalPrice);
 
-        } else if(daysUntilCheckIn >= 1){
-
-            this.totalPrice *= 0.5;
-        }
+        this.status = "CANCELLED";
     }
 }
